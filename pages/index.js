@@ -1,6 +1,9 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import React, { useState, useEffect } from 'react'
+import { Form, Input, Button, Row, Col, Table, Typography, Space, Upload } from 'antd';
+import axios from 'axios'
 
 export default function Home() {
   return (
