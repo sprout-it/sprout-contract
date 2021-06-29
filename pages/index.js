@@ -12,12 +12,16 @@ import {
   InputNumber,
 } from "antd";
 import axios from "axios";
+const MEMBER_ENDPOINT = process.env.NEXT_PUBLIC_MEMBER_ENDPOINT;
 
 export default function Home() {
   const { TextArea } = Input;
+  const { Paragraph } = Typography;
   const [form] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isEditPercent, setIsEditPercent] = useState(false);
+  const [paymentLink, setPaymentLink] = useState();
+  const [requirement, setRequirement] = useState();
+  const [totalRequirement, setTotalRequirement] = useState([]);
   const [aeName, setAeName] = useState();
   const [aePercent, setAepercent] = useState();
   const [aeTeam, setAeTeam] = useState({
@@ -26,8 +30,16 @@ export default function Home() {
     },
     aeAdd: [],
   });
-  const showModal = () => {
-    setIsModalVisible(true);
+  const sendForm = async () => {
+    try {
+      const response = await axios.post(`${MEMBER_ENDPOINT}/contract`);
+      if (response.status === 200) {
+        setPaymentLink(response.data);
+        setIsModalVisible(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   const handleOk = () => {
     setIsModalVisible(false);
@@ -35,6 +47,13 @@ export default function Home() {
 
   const handleCancel = () => {
     setIsModalVisible(false);
+  };
+  const onChangeRequirement = (value) => {
+    console.log(value.target.value);
+    setRequirement(value.target.value);
+  };
+  const addRequirement = () => {
+    setTotalRequirement([...totalRequirement, requirement]);
   };
 
   const onChangeAeName = (value) => {
@@ -56,12 +75,16 @@ export default function Home() {
     });
   };
 
-  const deletAe = (item) => {
+  const deleteAe = (item) => {
     setAeTeam({
       ...aeTeam,
       aeAdd: [...aeTeam.aeAdd.filter((data) => data.name !== item.name)],
     });
   };
+
+  const deleteRequirement = (item) =>{
+    setTotalRequirement([...totalRequirement.filter((data)=>data!==item)])
+  }
 
   return (
     <Row
@@ -169,9 +192,28 @@ export default function Home() {
               <Form.Item label="ชื่อ AE" rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
-              <Form.Item label="Requirement" rules={[{ required: true }]}>
-                <TextArea rows={20} />
-              </Form.Item>
+              <Row>
+                <Col>
+                  <Form.Item label="Requirement" rules={[{ required: true }]}>
+                    <Input onChange={onChangeRequirement} />
+                  </Form.Item>
+                </Col>
+                <Col>
+                  <Form.Item>
+                    <Button onClick={addRequirement}>เพิ่ม</Button>
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Col>
+                {totalRequirement.map((item, key) => (
+                  <Row key={key}>
+                    <Col>{key + 1}. {item}</Col>
+                    <Col>
+                        <Button onClick={() => deleteRequirement(item)}>ลบ</Button>
+                      </Col>
+                  </Row>
+                ))}
+              </Col>
               <Row>
                 <Col>
                   <Form.Item label="ราคา" rules={[{ required: true }]}>
@@ -219,40 +261,28 @@ export default function Home() {
                       <Col>{item.name}</Col>
                       <Col>{item.percent}</Col>
                       <Col>
-                        <Button onClick={() => setIsEditPercent(true)}>
-                          แก้ไข
-                        </Button>
-                      </Col>
-                      <Col>
-                        <Button onClick={() => deletAe(item)}>ลบ</Button>
+                        <Button onClick={() => deleteAe(item)}>ลบ</Button>
                       </Col>
                     </Row>
                   ))}
                 </Col>
               </Row>
               <Row>
-                <Button onClick={showModal}>Submit</Button>
+                <Button onClick={sendForm}>Submit</Button>
               </Row>
             </Form>
             <Modal
-              title="Edit Percent"
-              visible={isEditPercent}
-              onOk={handleOk}
-              onCancel={handleCancel}
-            >
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-            </Modal>
-            <Modal
-              title="Basic Modal"
               visible={isModalVisible}
               onOk={handleOk}
               onCancel={handleCancel}
+              centered
             >
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
+              <Paragraph
+                style={{ fontSize: 22 }}
+                copyable={{ tooltips: false }}
+              >
+                https://payment-k6re3l4ruq-as.a.run.app/{paymentLink}
+              </Paragraph>
             </Modal>
           </Col>
         </Row>
