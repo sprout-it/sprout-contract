@@ -14,7 +14,8 @@
     "@fortawesome/react-fontawesome": "^0.1.14",
     "antd": "^4.16.5",
     "axios": "^0.21.1",
-    "firebase": "^9.0.0-beta.2",
+    "firebase": "^8.6.8",
+    "firebase-admin": "^9.10.0",
     "next": "11.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"
@@ -22,5 +23,17 @@
   "devDependencies": {
     "eslint": "7.29.0",
     "eslint-config-next": "11.0.1"
-  }
+  },
+  "description": "This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).",
+  "main": "next.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sprout-it/sprout-contract.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sprout-it/sprout-contract/issues"
+  },
+  "homepage": "https://github.com/sprout-it/sprout-contract#readme"
 }

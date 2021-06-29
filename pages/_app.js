@@ -1,7 +1,7 @@
 import "../styles/globals.css";
 import "antd/dist/antd.css";
 import LayoutComponent from "../components/LayoutComponent";
-import Head from 'next/head'
+import Head from "next/head";
 
 function MyApp({ Component, pageProps }) {
   return (

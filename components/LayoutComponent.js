@@ -27,25 +27,25 @@ const LayoutComponent = ({ children }) => {
                 <Col xs={{ span: 16 }} sm={{ span: 16 }} md={{ span: 10, offset: 2 }} xl={{ span: 10, offset: 4 }} xxl={{ span: 7, offset: 5 }} >
                     <Row justify='end' align='middle' wrap={false}>
                         <Link href='/login'><Button className='login-button' type='ghost'>Sign In</Button></Link>
-                        <Link href='/register'><Button className='signup-button' type='primary'>Sign UP</Button></Link>
+                        <Link href='/register'><Button className='signup-button' style={{backgroundColor:"#35b729",color:'white'}}>Sign UP</Button></Link>
                     </Row>
                 </Col>
             </Row>
-            <Header className="header">
-                <nav className="navbar">
+            <Header className="header" style={{backgroundColor:'#35b729',height:'100%'}}>
+                <nav className="navbar " style={{width:'100%'}}>
                     <input type="checkbox" id="check" />
                     <label htmlFor="check" className="checkbtn">
                         <FontAwesomeIcon icon={faBars} color='#ffffff'></FontAwesomeIcon>
                     </label>
                     <ul className='navbar-menu'>
-                        <li className="test"><Link href='/'><a className='active'>home</a></Link></li>
+                        {/* <li className="test"><Link href='/'><a className='active'>home</a></Link></li>
                         <li><Link href='/membership'><a className='active'>membership</a></Link></li>
                         <li><Link href='/logistic'><a className='active'>logistic</a></Link></li>
-                        <li><Link href='/it'><a className='active'>IT</a></Link></li>
+                        <li><Link href='/it'><a className='active'>IT</a></Link></li> */}
                     </ul>
                 </nav>
             </Header>
-            <Content style={{ padding: 0, marginTop: -22 }}>
+            <Content style={{ padding: 0, marginTop: -22 ,height:'100%'}}>
                 {children}
             </Content>
             <Footer style={{ margin: 0, backgroundColor: "#35b729" }}>
