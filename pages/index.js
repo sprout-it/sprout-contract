@@ -10,6 +10,7 @@ import {
   Typography,
   Modal,
   InputNumber,
+  Checkbox,
 } from "antd";
 import axios from "axios";
 const MEMBER_ENDPOINT = process.env.NEXT_PUBLIC_MEMBER_ENDPOINT;
@@ -19,17 +20,48 @@ export default function Home() {
   const { Paragraph } = Typography;
   const [form] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [colorKey, setColorKey] = useState(0);
+  const [contract, setContract] = useState();
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [order, setOrder] = useState([]);
   const [paymentLink, setPaymentLink] = useState();
-  const [requirement, setRequirement] = useState();
-  const [totalRequirement, setTotalRequirement] = useState([]);
   const [aeName, setAeName] = useState();
-  const [aePercent, setAepercent] = useState();
+  const [aePercent, setAepercent] = useState(0);
   const [aeTeam, setAeTeam] = useState({
     aeHeader: {
-      name: "AE ที่รับผิดชอบ",
+      name: "",
     },
     aeAdd: [],
   });
+
+  const handleContract = (item, key) => {
+    let number = 0;
+    setColorKey(key);
+    setContract(item);
+    item.contractData.cartItems.map((cart) => {
+      number += cart.ppu;
+    });
+    setTotalPrice(number);
+  };
+
+  const getOrder = async () => {
+    try {
+      let number = 0;
+      const response = await axios.get(`${MEMBER_ENDPOINT}/contract`);
+      if (response.status === 200) {
+        setColorKey(0);
+        setOrder(response.data);
+        setContract(response.data[0]);
+        response.data[0].contractData.cartItems.map((cart) => {
+          number += cart.ppu;
+        });
+        setTotalPrice(number);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const sendForm = async () => {
     try {
       const response = await axios.post(`${MEMBER_ENDPOINT}/contract`);
@@ -48,23 +80,26 @@ export default function Home() {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-  const onChangeRequirement = (value) => {
-    console.log(value.target.value);
-    setRequirement(value.target.value);
-  };
-  const addRequirement = () => {
-    setTotalRequirement([...totalRequirement, requirement]);
-  };
 
-  const onChangeAeName = (value) => {
-    setAeName(value.target.value);
+  const onChangeAeName = (e) => {
+    setAeName(e.target.value);
   };
 
   const onChangeAePercent = (value) => {
     setAepercent(value);
   };
 
+  const handleAeHeader = (e) => {
+    setAeTeam({
+      ...aeTeam,
+      aeHeader: {
+        ...aeTeam.aeHeader,
+        name: e,
+      },
+    });
+  };
   const addAe = () => {
+    onReset();
     const ae = {
       name: aeName,
       percent: aePercent,
@@ -82,9 +117,13 @@ export default function Home() {
     });
   };
 
-  const deleteRequirement = (item) =>{
-    setTotalRequirement([...totalRequirement.filter((data)=>data!==item)])
-  }
+  const onReset = () => {
+    form.resetFields();
+  };
+
+  useEffect(() => {
+    getOrder();
+  }, []);
 
   return (
     <Row
@@ -99,78 +138,55 @@ export default function Home() {
           height: "100vh",
         }}
       >
-        <Row justify="center" style={{ border: "1px solid #c4c4c4" }}>
-          <Col>
-            <Typography.Title level={3}>รายการที่1</Typography.Title>
-            <Typography.Paragraph>ชื่อลูกค้า</Typography.Paragraph>
-            <Typography.Paragraph>
-              รายละเอียดแพ็คเกจที่สนใจ
-            </Typography.Paragraph>
-          </Col>
-        </Row>
-        <Row justify="center" style={{ border: "1px solid #c4c4c4" }}>
-          <Col>
-            <Typography.Title level={3}>รายการที่1</Typography.Title>
-            <Typography.Paragraph>ชื่อลูกค้า</Typography.Paragraph>
-            <Typography.Paragraph>
-              รายละเอียดแพ็คเกจที่สนใจ
-            </Typography.Paragraph>
-          </Col>
-        </Row>
-        <Row justify="center" style={{ border: "1px solid #c4c4c4" }}>
-          <Col>
-            <Typography.Title level={3}>รายการที่1</Typography.Title>
-            <Typography.Paragraph>ชื่อลูกค้า</Typography.Paragraph>
-            <Typography.Paragraph>
-              รายละเอียดแพ็คเกจที่สนใจ
-            </Typography.Paragraph>
-          </Col>
-        </Row>
-        <Row justify="center" style={{ border: "1px solid #c4c4c4" }}>
-          <Col>
-            <Typography.Title level={3}>รายการที่1</Typography.Title>
-            <Typography.Paragraph>ชื่อลูกค้า</Typography.Paragraph>
-            <Typography.Paragraph>
-              รายละเอียดแพ็คเกจที่สนใจ
-            </Typography.Paragraph>
-          </Col>
-        </Row>
-        <Row justify="center" style={{ border: "1px solid #c4c4c4" }}>
-          <Col>
-            <Typography.Title level={3}>รายการที่1</Typography.Title>
-            <Typography.Paragraph>ชื่อลูกค้า</Typography.Paragraph>
-            <Typography.Paragraph>
-              รายละเอียดแพ็คเกจที่สนใจ
-            </Typography.Paragraph>
-          </Col>
-        </Row>
-        <Row justify="center" style={{ border: "1px solid #c4c4c4" }}>
-          <Col>
-            <Typography.Title level={3}>รายการที่1</Typography.Title>
-            <Typography.Paragraph>ชื่อลูกค้า</Typography.Paragraph>
-            <Typography.Paragraph>
-              รายละเอียดแพ็คเกจที่สนใจ
-            </Typography.Paragraph>
-          </Col>
-        </Row>
-        <Row justify="center" style={{ border: "1px solid #c4c4c4" }}>
-          <Col>
-            <Typography.Title level={3}>รายการที่1</Typography.Title>
-            <Typography.Paragraph>ชื่อลูกค้า</Typography.Paragraph>
-            <Typography.Paragraph>
-              รายละเอียดแพ็คเกจที่สนใจ
-            </Typography.Paragraph>
-          </Col>
-        </Row>
-        <Row justify="center" style={{ border: "1px solid #c4c4c4" }}>
-          <Col>
-            <Typography.Title level={3}>รายการที่1</Typography.Title>
-            <Typography.Paragraph>ชื่อลูกค้า</Typography.Paragraph>
-            <Typography.Paragraph>
-              รายละเอียดแพ็คเกจที่สนใจ
-            </Typography.Paragraph>
-          </Col>
-        </Row>
+        {order.map((item, key) =>
+          key === colorKey ? (
+            <Row
+              justify="center"
+              key={key}
+              style={{
+                border: "1px solid #c4c4c4",
+                cursor: "pointer",
+                backgroundColor: "#D1D1D1",
+              }}
+              onClick={() => handleContract(item, key)}
+            >
+              <Col>
+                <Typography.Title level={3}>
+                  {item.contractData.customer_name}
+                </Typography.Title>
+
+                {item.contractData.cartItems.map((cart, key) => (
+                  <Typography.Paragraph key={key}>
+                    {cart.name}
+                  </Typography.Paragraph>
+                ))}
+              </Col>
+            </Row>
+          ) : (
+            <Row
+              justify="center"
+              key={key}
+              style={{
+                border: "1px solid #c4c4c4",
+                cursor: "pointer",
+                backgroundColor: "#F1F1F1",
+              }}
+              onClick={() => handleContract(item, key)}
+            >
+              <Col>
+                <Typography.Title level={3}>
+                  {item.contractData.customer_name}
+                </Typography.Title>
+
+                {item.contractData.cartItems.map((cart, key) => (
+                  <Typography.Paragraph key={key}>
+                    {cart.name}
+                  </Typography.Paragraph>
+                ))}
+              </Col>
+            </Row>
+          )
+        )}
       </Col>
       <Col
         span={16}
@@ -185,54 +201,83 @@ export default function Home() {
           style={{ backgroundColor: "white", margin: "20px", height: "100%" }}
         >
           <Col span={20}>
-            <Form form={form}>
-              <Form.Item label="ชื่อลูกค้า" rules={[{ required: true }]}>
-                <Input />
-              </Form.Item>
-              <Form.Item label="ชื่อ AE" rules={[{ required: true }]}>
-                <Input />
-              </Form.Item>
+            <Form form={form} name="contract">
+              <Row justify="end">
+                <Form.Item>
+                  <Button
+                    style={{
+                      backgroundColor: "#AE1531",
+                      height: "30px",
+                      width: "93px",
+                      borderRadius: "3px",
+                      color: "white",
+                      fontFamily: "Prompt",
+                      fontSize: "15px",
+                    }}
+                  >
+                    ลบ
+                  </Button>
+                </Form.Item>
+              </Row>
+              <Row justify="start">
+                <Typography.Text>
+                  ชื่อลูกค้า:{" "}
+                  {contract
+                    ? JSON.parse(
+                        JSON.stringify(contract.contractData.customer_name)
+                      )
+                    : ""}
+                </Typography.Text>
+              </Row>
+              <Row>
+                <Paragraph style={{marginRight:12}}>ชื่อ AE: </Paragraph>
+                <Paragraph editable={{ onChange: handleAeHeader }}>
+                  {aeTeam.aeHeader.name}
+                </Paragraph>
+              </Row>
               <Row>
                 <Col>
-                  <Form.Item label="Requirement" rules={[{ required: true }]}>
-                    <Input onChange={onChangeRequirement} />
-                  </Form.Item>
-                </Col>
-                <Col>
-                  <Form.Item>
-                    <Button onClick={addRequirement}>เพิ่ม</Button>
-                  </Form.Item>
+                  <Row>
+                    <Typography.Text>Requirement</Typography.Text>
+                  </Row>
+                  {contract
+                    ? contract.contractData.cartItems.map((item, key) => (
+                        <>
+                          <Row>
+                            <Typography.Text key={key}>
+                              Package: {item.name}
+                            </Typography.Text>
+                          </Row>
+                          {item.detailsEN.map((item, key) => (
+                            <Row>
+                              <Typography.Text key={key}>
+                                {item}
+                              </Typography.Text>
+                            </Row>
+                          ))}
+                        </>
+                      ))
+                    : ""}
                 </Col>
               </Row>
-              <Col>
-                {totalRequirement.map((item, key) => (
-                  <Row key={key}>
-                    <Col>{key + 1}. {item}</Col>
-                    <Col>
-                        <Button onClick={() => deleteRequirement(item)}>ลบ</Button>
-                      </Col>
-                  </Row>
-                ))}
-              </Col>
               <Row>
-                <Col>
-                  <Form.Item label="ราคา" rules={[{ required: true }]}>
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col>
-                  <Form.Item label="ราคารวม" rules={[{ required: true }]}>
-                    <Input />
-                  </Form.Item>
-                </Col>
+                <Typography.Text>
+                  ราคา:{totalPrice ? totalPrice : ""}
+                </Typography.Text>
+              </Row>
+              <Row>
+                <Typography.Text style={{ fontSize: 20, color: "#46D68C" }}>
+                  Responsible persons
+                </Typography.Text>
               </Row>
               <Row>
                 <Col>
                   <Form.Item
+                    name="aeteam"
                     label="เพิ่ม AE เข้าทีม"
                     rules={[{ required: true }]}
                   >
-                    <Input onChange={onChangeAeName} />
+                    <Input onChange={(e) => onChangeAeName(e)} />
                   </Form.Item>
                 </Col>
                 <Col>
@@ -243,13 +288,13 @@ export default function Home() {
                       max={100}
                       formatter={(value) => `${value}%`}
                       parser={(value) => value.replace("%", "")}
-                      onChange={onChangeAePercent}
+                      onChange={(e) => onChangeAePercent(e)}
                     />
                   </Form.Item>
                 </Col>
                 <Col>
                   <Form.Item>
-                    <Button onClick={addAe}>เพิ่ม</Button>
+                    <Button onClick={() => addAe()}>เพิ่ม</Button>
                   </Form.Item>
                 </Col>
               </Row>
@@ -268,7 +313,25 @@ export default function Home() {
                 </Col>
               </Row>
               <Row>
-                <Button onClick={sendForm}>Submit</Button>
+                <Checkbox style={{ fontSize: "16px", color: "#414141" }}>
+                  I agree with this contract details{" "}
+                </Checkbox>
+              </Row>
+              <Row justify="center">
+                <Button
+                  onClick={sendForm}
+                  style={{
+                    backgroundColor: "#1BB61D",
+                    borderRadius: "5px",
+                    color: "white",
+                    height: "60px",
+                    width: "130px",
+                    fontFamily: "Prompt",
+                    fontSize: "25px",
+                  }}
+                >
+                  Submit
+                </Button>
               </Row>
             </Form>
             <Modal
