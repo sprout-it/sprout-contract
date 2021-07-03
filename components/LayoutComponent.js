@@ -52,8 +52,7 @@ const LayoutComponent = ({ children }) => {
                 <Row justify='center' style={{ color: '#fff' }}>
                     <Col xs={0} sm={0} md={24} lg={24} xl={24} xxl={24}>
                         <Row justify='center' >
-                            <Typography.Text style={{ fontFamily: 'Sukhumvit Set', color: '#fff', fontSize: 18 }}> All rights reserved. Copyright © 2021 Sprout Co., Ltd.</Typography.Text>
-                            
+                            <Typography.Text style={{ fontFamily: 'Sukhumvit Set', color: '#fff', fontSize: 18 }}> All rights reserved. Copyright © 2021 Sprout Co., Ltd.</Typography.Text>    
                         </Row>
                     </Col>
                 </Row>

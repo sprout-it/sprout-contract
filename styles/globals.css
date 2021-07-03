@@ -16,6 +16,9 @@ a {
   box-sizing: border-box;
 }
 
+ th, td {
+  border: 1px solid black;
+}
 
 nav{
   background: #35b729;

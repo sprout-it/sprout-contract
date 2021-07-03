@@ -11,28 +11,27 @@ import {
   Modal,
   InputNumber,
   Checkbox,
+  Tabs,
+  Steps,
 } from "antd";
 import axios from "axios";
 const MEMBER_ENDPOINT = process.env.NEXT_PUBLIC_MEMBER_ENDPOINT;
 
 export default function Home() {
-  const { TextArea } = Input;
+  const { TabPane } = Tabs;
+  const { Step } = Steps;
   const { Paragraph } = Typography;
   const [form] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [current, setCurrent] = useState(0);
   const [colorKey, setColorKey] = useState(0);
   const [contract, setContract] = useState();
   const [totalPrice, setTotalPrice] = useState(0);
   const [order, setOrder] = useState([]);
   const [paymentLink, setPaymentLink] = useState();
+  const [requirement, setRequirement] = useState();
   const [aeName, setAeName] = useState();
   const [aePercent, setAepercent] = useState(0);
-  const [aeTeam, setAeTeam] = useState({
-    aeHeader: {
-      name: "",
-    },
-    aeAdd: [],
-  });
 
   const handleContract = (item, key) => {
     let number = 0;
@@ -42,6 +41,19 @@ export default function Home() {
       number += cart.ppu;
     });
     setTotalPrice(number);
+    switch (item.contractData.status) {
+      case "offering":
+        setCurrent(1);
+        break;
+      case "accepted":
+        setCurrent(2);
+        break;
+      case "done":
+        setCurrent(3);
+        break;
+      default:
+        setCurrent(0);
+    }
   };
 
   const getOrder = async () => {
@@ -56,6 +68,19 @@ export default function Home() {
           number += cart.ppu;
         });
         setTotalPrice(number);
+        switch (response.data[0].contractData.status) {
+          case "offering":
+            setCurrent(1);
+            break;
+          case "accepted":
+            setCurrent(2);
+            break;
+          case "done":
+            setCurrent(3);
+            break;
+          default:
+            setCurrent(0);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -89,12 +114,12 @@ export default function Home() {
     setAepercent(value);
   };
 
-  const handleAeHeader = (e) => {
-    setAeTeam({
-      ...aeTeam,
-      aeHeader: {
-        ...aeTeam.aeHeader,
-        name: e,
+  const handleAeLeader = (e) => {
+    setContract({
+      ...contract,
+      contractData: {
+        ...contract.contractData,
+        ae_id: e,
       },
     });
   };
@@ -104,19 +129,55 @@ export default function Home() {
       name: aeName,
       percent: aePercent,
     };
-    setAeTeam({
-      ...aeTeam,
-      aeAdd: [...aeTeam.aeAdd, ae],
+    setContract({
+      ...contract,
+      contractData: {
+        ...contract.contractData,
+        ae_team: [...contract.contractData.ae_team, ae],
+      },
     });
   };
 
   const deleteAe = (item) => {
-    setAeTeam({
-      ...aeTeam,
-      aeAdd: [...aeTeam.aeAdd.filter((data) => data.name !== item.name)],
+    setContract({
+      ...contract,
+      contractData: {
+        ...contract.contractData,
+        ae_team: [
+          ...contract.contractData.ae_team.filter(
+            (data) => data.name !== item.name
+          ),
+        ],
+      },
     });
   };
 
+  const onChangeRequirement = (value) => {
+    setRequirement(value.target.value);
+  };
+
+  const addRequirement = () => {
+    onReset();
+    setContract({
+      ...contract,
+      contractData: {
+        ...contract.contractData,
+        requirement: [...contract.contractData.requirement, requirement],
+      },
+    });
+  };
+
+  const deleteRequirement = (item) => {
+    setContract({
+      ...contract,
+      contractData: {
+        ...contract.contractData,
+        requirement: [
+          ...contract.contractData.requirement.filter((data) => data !== item),
+        ],
+      },
+    });
+  };
   const onReset = () => {
     form.resetFields();
   };
@@ -194,160 +255,241 @@ export default function Home() {
           overflowX: "hidden",
           overflowY: "auto",
           height: "100vh",
+          backgroundColor: "white",
         }}
       >
+        <Row justify="center">
+          <Steps style={{ width: "80%" }} current={current}>
+            <Step title="Offering" />
+            <Step title="Accepted" />
+            <Step title="Done" />
+          </Steps>
+        </Row>
         <Row
-          justify="center"
-          style={{ backgroundColor: "white", margin: "20px", height: "100%" }}
+          justify="start"
+          style={{ margin: "20px", height: "100%", width: "100%" }}
         >
-          <Col span={20}>
-            <Form form={form} name="contract">
-              <Row justify="end">
-                <Form.Item>
-                  <Button
-                    style={{
-                      backgroundColor: "#AE1531",
-                      height: "30px",
-                      width: "93px",
-                      borderRadius: "3px",
-                      color: "white",
-                      fontFamily: "Prompt",
-                      fontSize: "15px",
-                    }}
-                  >
-                    ลบ
-                  </Button>
-                </Form.Item>
-              </Row>
-              <Row justify="start">
-                <Typography.Text>
-                  ชื่อลูกค้า:{" "}
-                  {contract
-                    ? JSON.parse(
-                        JSON.stringify(contract.contractData.customer_name)
-                      )
-                    : ""}
-                </Typography.Text>
-              </Row>
-              <Row>
-                <Paragraph style={{marginRight:12}}>ชื่อ AE: </Paragraph>
-                <Paragraph editable={{ onChange: handleAeHeader }}>
-                  {aeTeam.aeHeader.name}
-                </Paragraph>
-              </Row>
-              <Row>
-                <Col>
-                  <Row>
-                    <Typography.Text>Requirement</Typography.Text>
-                  </Row>
-                  {contract
-                    ? contract.contractData.cartItems.map((item, key) => (
-                        <>
-                          <Row>
-                            <Typography.Text key={key}>
-                              Package: {item.name}
-                            </Typography.Text>
-                          </Row>
-                          {item.detailsEN.map((item, key) => (
-                            <Row>
-                              <Typography.Text key={key}>
-                                {item}
-                              </Typography.Text>
-                            </Row>
-                          ))}
-                        </>
-                      ))
-                    : ""}
-                </Col>
-              </Row>
-              <Row>
-                <Typography.Text>
-                  ราคา:{totalPrice ? totalPrice : ""}
-                </Typography.Text>
-              </Row>
-              <Row>
-                <Typography.Text style={{ fontSize: 20, color: "#46D68C" }}>
-                  Responsible persons
-                </Typography.Text>
-              </Row>
-              <Row>
-                <Col>
-                  <Form.Item
-                    name="aeteam"
-                    label="เพิ่ม AE เข้าทีม"
-                    rules={[{ required: true }]}
-                  >
-                    <Input onChange={(e) => onChangeAeName(e)} />
-                  </Form.Item>
-                </Col>
-                <Col>
-                  <Form.Item label="commission" rules={[{ required: true }]}>
-                    <InputNumber
-                      defaultValue={0}
-                      min={0}
-                      max={100}
-                      formatter={(value) => `${value}%`}
-                      parser={(value) => value.replace("%", "")}
-                      onChange={(e) => onChangeAePercent(e)}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col>
-                  <Form.Item>
-                    <Button onClick={() => addAe()}>เพิ่ม</Button>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <Row>{aeTeam.aeHeader.name}</Row>
-                  {aeTeam.aeAdd.map((item, key) => (
-                    <Row key={key}>
-                      <Col>{item.name}</Col>
-                      <Col>{item.percent}</Col>
+          {contract && contract.contractData.status === "offering" ? (
+            <Tabs defaultActiveKey="1" style={{ width: "100%" }}>
+              <TabPane tab="contract" key="1">
+                <Col span={20}>
+                  <Form form={form} name="contract">
+                    <Row justify="end">
+                      <Form.Item>
+                        <Button
+                          style={{
+                            backgroundColor: "#AE1531",
+                            height: "30px",
+                            width: "93px",
+                            borderRadius: "3px",
+                            color: "white",
+                            fontFamily: "Prompt",
+                            fontSize: "15px",
+                          }}
+                        >
+                          ลบ
+                        </Button>
+                      </Form.Item>
+                    </Row>
+                    <Row justify="start">
+                      <Typography.Text>
+                        ชื่อลูกค้า:{" "}
+                        {contract
+                          ? JSON.parse(
+                              JSON.stringify(
+                                contract.contractData.customer_name
+                              )
+                            )
+                          : ""}
+                      </Typography.Text>
+                    </Row>
+                    <Row>
+                      <Paragraph style={{ marginRight: 12 }}>
+                        ชื่อ AE:{" "}
+                      </Paragraph>
+                      <Paragraph editable={{ onChange: handleAeLeader }}>
+                        {contract ? contract.contractData.ae_id : ""}
+                      </Paragraph>
+                    </Row>
+                    <Row>
                       <Col>
-                        <Button onClick={() => deleteAe(item)}>ลบ</Button>
+                        <table>
+                          {contract
+                            ? contract.contractData.cartItems.map(
+                                (item, key) => (
+                                  <>
+                                    <tr>
+                                      <th key={key}>Package: {item.name}</th>
+                                    </tr>
+                                    {item.detailsEN.map((item, key) => (
+                                      <tr>
+                                        <td key={key}>{item}</td>
+                                      </tr>
+                                    ))}
+                                  </>
+                                )
+                              )
+                            : ""}
+                        </table>
                       </Col>
                     </Row>
-                  ))}
+                    <Row>
+                      <Typography.Text>
+                        ราคา:{totalPrice ? totalPrice : ""}
+                      </Typography.Text>
+                    </Row>
+                    <Row>
+                      <Typography.Text
+                        style={{ fontSize: 20, color: "#46D68C" }}
+                      >
+                        Responsible persons
+                      </Typography.Text>
+                    </Row>
+                    <Row>
+                      <Col>
+                        <Form.Item
+                          name="aeteam"
+                          label="เพิ่ม AE เข้าทีม"
+                          rules={[{ required: true }]}
+                        >
+                          <Input onChange={(e) => onChangeAeName(e)} />
+                        </Form.Item>
+                      </Col>
+                      <Col>
+                        <Form.Item
+                          label="commission"
+                          rules={[{ required: true }]}
+                        >
+                          <InputNumber
+                            defaultValue={0}
+                            min={0}
+                            max={100}
+                            formatter={(value) => `${value}%`}
+                            parser={(value) => value.replace("%", "")}
+                            onChange={(e) => onChangeAePercent(e)}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col>
+                        <Form.Item>
+                          <Button onClick={() => addAe()}>เพิ่ม</Button>
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col>
+                        {contract
+                          ? contract.contractData.ae_team.map((item, key) => (
+                              <Row key={key}>
+                                <Col>{item.name}</Col>
+                                <Col>{item.percent}</Col>
+                                <Col>
+                                  <Button onClick={() => deleteAe(item)}>
+                                    ลบ
+                                  </Button>
+                                </Col>
+                              </Row>
+                            ))
+                          : ""}
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Checkbox style={{ fontSize: "16px", color: "#414141" }}>
+                        I agree with this contract details{" "}
+                      </Checkbox>
+                    </Row>
+                    <Row justify="center" style={{ paddingBottom: "52px" }}>
+                      <Button
+                        onClick={sendForm}
+                        style={{
+                          backgroundColor: "#1BB61D",
+                          borderRadius: "5px",
+                          color: "white",
+                          height: "60px",
+                          width: "130px",
+                          fontFamily: "Prompt",
+                          fontSize: "25px",
+                        }}
+                      >
+                        Submit
+                      </Button>
+                    </Row>
+                  </Form>
+                  <Modal
+                    visible={isModalVisible}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                    centered
+                  >
+                    <Paragraph
+                      style={{ fontSize: 22 }}
+                      copyable={{ tooltips: false }}
+                    >
+                      https://payment-k6re3l4ruq-as.a.run.app/{paymentLink}
+                    </Paragraph>
+                  </Modal>
                 </Col>
-              </Row>
-              <Row>
-                <Checkbox style={{ fontSize: "16px", color: "#414141" }}>
-                  I agree with this contract details{" "}
-                </Checkbox>
-              </Row>
-              <Row justify="center">
-                <Button
-                  onClick={sendForm}
-                  style={{
-                    backgroundColor: "#1BB61D",
-                    borderRadius: "5px",
-                    color: "white",
-                    height: "60px",
-                    width: "130px",
-                    fontFamily: "Prompt",
-                    fontSize: "25px",
-                  }}
-                >
-                  Submit
-                </Button>
-              </Row>
-            </Form>
-            <Modal
-              visible={isModalVisible}
-              onOk={handleOk}
-              onCancel={handleCancel}
-              centered
-            >
-              <Paragraph
-                style={{ fontSize: 22 }}
-                copyable={{ tooltips: false }}
-              >
-                https://payment-k6re3l4ruq-as.a.run.app/{paymentLink}
-              </Paragraph>
-            </Modal>
-          </Col>
+              </TabPane>
+              <TabPane tab="requirement" key="2">
+                <Col span={20}>
+                  <Form form={form} name="contract">
+                    <Row justify="start">
+                      <Col span={24}>
+                        <Row>
+                          <Col>
+                            <Form.Item
+                              name="requirement"
+                              label="Add Requirement"
+                              rules={[{ required: true }]}
+                            >
+                              <Input onChange={onChangeRequirement} />
+                            </Form.Item>
+                          </Col>
+                          <Col>
+                            <Form.Item>
+                              <Button onClick={addRequirement}>เพิ่ม</Button>
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        <Row>
+                          {contract &&
+                          contract.contractData.requirement.length > 0 ? (
+                            <Typography.Text>Requirement</Typography.Text>
+                          ) : (
+                            ""
+                          )}
+                        </Row>
+                        {contract
+                          ? contract.contractData.requirement.map(
+                              (item, key) => (
+                                <Row key={key}>
+                                  <Col>
+                                    {key + 1}. {item}
+                                  </Col>
+                                  <Col>
+                                    <Button
+                                      onClick={() => deleteRequirement(item)}
+                                    >
+                                      ลบ
+                                    </Button>
+                                  </Col>
+                                </Row>
+                              )
+                            )
+                          : ""}
+                      </Col>
+                    </Row>
+                  </Form>
+                </Col>
+              </TabPane>
+            </Tabs>
+          ) : contract && contract.contractData.status === "accepted" ? (
+            "หน้า qr"
+          ) : contract && contract.contractData.status === "done" ? (
+            "สำเร็จ"
+          ) : (
+            ""
+          )}
         </Row>
       </Col>
     </Row>
