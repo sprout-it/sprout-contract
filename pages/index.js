@@ -60,6 +60,7 @@ export default function Home() {
     try {
       let number = 0;
       const response = await axios.get(`${MEMBER_ENDPOINT}/contract`);
+      console.log(response.data)
       if (response.status === 200) {
         setColorKey(0);
         setOrder(response.data);
@@ -296,10 +297,10 @@ export default function Home() {
                         ชื่อลูกค้า:{" "}
                         {contract
                           ? JSON.parse(
-                              JSON.stringify(
-                                contract.contractData.customer_name
-                              )
+                            JSON.stringify(
+                              contract.contractData.customer_name
                             )
+                          )
                           : ""}
                       </Typography.Text>
                     </Row>
@@ -316,19 +317,19 @@ export default function Home() {
                         <table>
                           {contract
                             ? contract.contractData.cartItems.map(
-                                (item, key) => (
-                                  <>
+                              (item, key) => (
+                                <>
+                                  <tr>
+                                    <th key={key}>Package: {item.name}</th>
+                                  </tr>
+                                  {item.detailsEN.map((item, key) => (
                                     <tr>
-                                      <th key={key}>Package: {item.name}</th>
+                                      <td key={key}>{item}</td>
                                     </tr>
-                                    {item.detailsEN.map((item, key) => (
-                                      <tr>
-                                        <td key={key}>{item}</td>
-                                      </tr>
-                                    ))}
-                                  </>
-                                )
+                                  ))}
+                                </>
                               )
+                            )
                             : ""}
                         </table>
                       </Col>
@@ -380,16 +381,16 @@ export default function Home() {
                       <Col>
                         {contract
                           ? contract.contractData.ae_team.map((item, key) => (
-                              <Row key={key}>
-                                <Col>{item.name}</Col>
-                                <Col>{item.percent}</Col>
-                                <Col>
-                                  <Button onClick={() => deleteAe(item)}>
-                                    ลบ
-                                  </Button>
-                                </Col>
-                              </Row>
-                            ))
+                            <Row key={key}>
+                              <Col>{item.name}</Col>
+                              <Col>{item.percent}</Col>
+                              <Col>
+                                <Button onClick={() => deleteAe(item)}>
+                                  ลบ
+                                </Button>
+                              </Col>
+                            </Row>
+                          ))
                           : ""}
                       </Col>
                     </Row>
@@ -453,7 +454,7 @@ export default function Home() {
                         </Row>
                         <Row>
                           {contract &&
-                          contract.contractData.requirement.length > 0 ? (
+                            contract.contractData.requirement.length > 0 ? (
                             <Typography.Text>Requirement</Typography.Text>
                           ) : (
                             ""
@@ -461,21 +462,21 @@ export default function Home() {
                         </Row>
                         {contract
                           ? contract.contractData.requirement.map(
-                              (item, key) => (
-                                <Row key={key}>
-                                  <Col>
-                                    {key + 1}. {item}
-                                  </Col>
-                                  <Col>
-                                    <Button
-                                      onClick={() => deleteRequirement(item)}
-                                    >
-                                      ลบ
-                                    </Button>
-                                  </Col>
-                                </Row>
-                              )
+                            (item, key) => (
+                              <Row key={key}>
+                                <Col>
+                                  {key + 1}. {item}
+                                </Col>
+                                <Col>
+                                  <Button
+                                    onClick={() => deleteRequirement(item)}
+                                  >
+                                    ลบ
+                                  </Button>
+                                </Col>
+                              </Row>
                             )
+                          )
                           : ""}
                       </Col>
                     </Row>
