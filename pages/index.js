@@ -89,10 +89,9 @@ export default function Home() {
 
   const sendForm = async () => {
     try {
-      const response = await axios.post(`${MEMBER_ENDPOINT}/contract`);
+      const response = await axios.post(`${MEMBER_ENDPOINT}/contract`,{contract,totalPrice});
       if (response.status === 200) {
-        setPaymentLink(response.data);
-        setIsModalVisible(true);
+        console.log(response.data)
       }
     } catch (error) {
       console.log(error);
@@ -350,7 +349,6 @@ export default function Home() {
                         <Form.Item
                           name="aeteam"
                           label="เพิ่ม AE เข้าทีม"
-                          rules={[{ required: true }]}
                         >
                           <Input onChange={(e) => onChangeAeName(e)} />
                         </Form.Item>
@@ -358,7 +356,6 @@ export default function Home() {
                       <Col>
                         <Form.Item
                           label="commission"
-                          rules={[{ required: true }]}
                         >
                           <InputNumber
                             defaultValue={0}
@@ -380,9 +377,9 @@ export default function Home() {
                       <Col>
                         {contract
                           ? contract.contractData.ae_team.map((item, key) => (
-                              <Row key={key}>
-                                <Col>{item.name}</Col>
-                                <Col>{item.percent}</Col>
+                              <Row key={key} gutter={5}>
+                                <Col>AE Name: {item.name}</Col>
+                                <Col>Commission: {item.percent}</Col>
                                 <Col>
                                   <Button onClick={() => deleteAe(item)}>
                                     ลบ
