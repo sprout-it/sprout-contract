@@ -11,10 +11,10 @@ function MyApp({ Component, pageProps }) {
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/antd/3.22.0/antd.min.css"
         />
-        <meta
+        {/* <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0"
-        ></meta>
+        ></meta> */}
       </Head>
       <LayoutComponent>
         <Component {...pageProps} />

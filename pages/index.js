@@ -1,5 +1,3 @@
-import Head from "next/head";
-import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import {
   Form,
@@ -22,7 +20,8 @@ export default function Home() {
   const { Step } = Steps;
   const { Paragraph } = Typography;
   const [form] = Form.useForm();
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [qrcodeModalVisible, setQrcodeModalVisible] = useState(false);
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
   const [current, setCurrent] = useState(0);
   const [colorKey, setColorKey] = useState(0);
   const [contract, setContract] = useState();
@@ -33,7 +32,7 @@ export default function Home() {
   const [aeName, setAeName] = useState();
   const [aePercent, setAepercent] = useState(0);
 
-  const handleContract = (item, key) => {
+  const handleContract = async(item, key) => {
     let number = 0;
     setColorKey(key);
     setContract(item);
@@ -47,6 +46,9 @@ export default function Home() {
         break;
       case "accepted":
         setCurrent(2);
+        const quotation = item.contractData.quotation
+        const qrcode = await axios.post(`${MEMBER_ENDPOINT}/payment`,{price:totalPrice,quotation:quotation});
+        console.log(qrcode)
         break;
       case "done":
         setCurrent(3);
@@ -68,12 +70,15 @@ export default function Home() {
           number += cart.ppu;
         });
         setTotalPrice(number);
+        const quotation = response.data[0].contractData.quotation
         switch (response.data[0].contractData.status) {
           case "offering":
             setCurrent(1);
             break;
           case "accepted":
             setCurrent(2);
+            const qrcode = await axios.post(`${MEMBER_ENDPOINT}/payment`,{price:totalPrice,quotation:quotation});
+            console.log(qrcode)
             break;
           case "done":
             setCurrent(3);
@@ -91,18 +96,30 @@ export default function Home() {
     try {
       const response = await axios.post(`${MEMBER_ENDPOINT}/contract`,{contract,totalPrice});
       if (response.status === 200) {
-        console.log(response.data)
+        const name = response.data.name
+        const price = response.data.price
+        const quotation = response.data.quotation
+        const qrcode = await axios.post(`${MEMBER_ENDPOINT}/payment`,{price,quotation});
+        console.log(qrcode)
+        // setPaymentLink(response.data);
+
+        setQrcodeModalVisible(true)
+
+        // setIsModalVisible(true);
       }
     } catch (error) {
       console.log(error);
     }
   };
+
   const handleOk = () => {
-    setIsModalVisible(false);
+    setQrcodeModalVisible(false);
+    setPaymentModalVisible(false)
   };
 
   const handleCancel = () => {
-    setIsModalVisible(false);
+    setQrcodeModalVisible(false);
+    setPaymentModalVisible(false)
   };
 
   const onChangeAeName = (e) => {
@@ -122,6 +139,7 @@ export default function Home() {
       },
     });
   };
+
   const addAe = () => {
     onReset();
     const ae = {
@@ -177,6 +195,7 @@ export default function Home() {
       },
     });
   };
+
   const onReset = () => {
     form.resetFields();
   };
@@ -295,10 +314,10 @@ export default function Home() {
                         ชื่อลูกค้า:{" "}
                         {contract
                           ? JSON.parse(
-                              JSON.stringify(
-                                contract.contractData.customer_name
-                              )
+                            JSON.stringify(
+                              contract.contractData.customer_name
                             )
+                          )
                           : ""}
                       </Typography.Text>
                     </Row>
@@ -315,19 +334,19 @@ export default function Home() {
                         <table>
                           {contract
                             ? contract.contractData.cartItems.map(
-                                (item, key) => (
-                                  <>
+                              (item, key) => (
+                                <>
+                                  <tr>
+                                    <th key={key}>Package: {item.name}</th>
+                                  </tr>
+                                  {item.detailsEN.map((item, key) => (
                                     <tr>
-                                      <th key={key}>Package: {item.name}</th>
+                                      <td key={key}>{item}</td>
                                     </tr>
-                                    {item.detailsEN.map((item, key) => (
-                                      <tr>
-                                        <td key={key}>{item}</td>
-                                      </tr>
-                                    ))}
-                                  </>
-                                )
+                                  ))}
+                                </>
                               )
+                            )
                             : ""}
                         </table>
                       </Col>
@@ -413,17 +432,20 @@ export default function Home() {
                     </Row>
                   </Form>
                   <Modal
-                    visible={isModalVisible}
+                    visible={qrcodeModalVisible}
                     onOk={handleOk}
                     onCancel={handleCancel}
                     centered
                   >
-                    <Paragraph
-                      style={{ fontSize: 22 }}
-                      copyable={{ tooltips: false }}
-                    >
-                      https://payment-k6re3l4ruq-as.a.run.app/{paymentLink}
-                    </Paragraph>
+
+                  </Modal>
+                  <Modal
+                    visible={paymentModalVisible}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                    centered
+                  >
+
                   </Modal>
                 </Col>
               </TabPane>
@@ -450,7 +472,7 @@ export default function Home() {
                         </Row>
                         <Row>
                           {contract &&
-                          contract.contractData.requirement.length > 0 ? (
+                            contract.contractData.requirement.length > 0 ? (
                             <Typography.Text>Requirement</Typography.Text>
                           ) : (
                             ""
@@ -458,21 +480,21 @@ export default function Home() {
                         </Row>
                         {contract
                           ? contract.contractData.requirement.map(
-                              (item, key) => (
-                                <Row key={key}>
-                                  <Col>
-                                    {key + 1}. {item}
-                                  </Col>
-                                  <Col>
-                                    <Button
-                                      onClick={() => deleteRequirement(item)}
-                                    >
-                                      ลบ
-                                    </Button>
-                                  </Col>
-                                </Row>
-                              )
+                            (item, key) => (
+                              <Row key={key}>
+                                <Col>
+                                  {key + 1}. {item}
+                                </Col>
+                                <Col>
+                                  <Button
+                                    onClick={() => deleteRequirement(item)}
+                                  >
+                                    ลบ
+                                  </Button>
+                                </Col>
+                              </Row>
                             )
+                          )
                           : ""}
                       </Col>
                     </Row>
