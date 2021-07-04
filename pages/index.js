@@ -1,5 +1,3 @@
-import Head from "next/head";
-import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import {
   Form,
@@ -22,7 +20,8 @@ export default function Home() {
   const { Step } = Steps;
   const { Paragraph } = Typography;
   const [form] = Form.useForm();
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [qrcodeModalVisible, setQrcodeModalVisible] = useState(false);
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
   const [current, setCurrent] = useState(0);
   const [colorKey, setColorKey] = useState(0);
   const [contract, setContract] = useState();
@@ -92,19 +91,26 @@ export default function Home() {
     try {
       const response = await axios.post(`${MEMBER_ENDPOINT}/contract`);
       if (response.status === 200) {
-        setPaymentLink(response.data);
-        setIsModalVisible(true);
+        console.log(response.data)
+        // setPaymentLink(response.data);
+
+        setQrcodeModalVisible(true)
+
+        // setIsModalVisible(true);
       }
     } catch (error) {
       console.log(error);
     }
   };
+
   const handleOk = () => {
-    setIsModalVisible(false);
+    setQrcodeModalVisible(false);
+    setPaymentModalVisible(false)
   };
 
   const handleCancel = () => {
-    setIsModalVisible(false);
+    setQrcodeModalVisible(false);
+    setPaymentModalVisible(false)
   };
 
   const onChangeAeName = (e) => {
@@ -124,6 +130,7 @@ export default function Home() {
       },
     });
   };
+
   const addAe = () => {
     onReset();
     const ae = {
@@ -179,6 +186,7 @@ export default function Home() {
       },
     });
   };
+
   const onReset = () => {
     form.resetFields();
   };
@@ -407,6 +415,38 @@ export default function Home() {
                           borderRadius: "5px",
                           color: "white",
                           height: "60px",
+                          fontFamily: "Prompt",
+                          fontSize: "25px",
+                        }}
+                      >
+                        <Col span={10}>
+                          <img src="/images/payment.svg" alt="payment" width='50px' />
+                        </Col>
+                        <Col span={14}>Payment</Col>
+                      </Button>
+                      <Button
+                        onClick={sendForm}
+                        style={{
+                          backgroundColor: "#1BB61D",
+                          borderRadius: "5px",
+                          color: "white",
+                          height: "60px",
+                          fontFamily: "Prompt",
+                          fontSize: "25px",
+                        }}
+                      >
+                        <Col span={10}>
+                          <img src="/images/qrcode.svg" alt="qrcode" width='50px' />
+                        </Col>
+                        <Col span={14}>Qr Code</Col>
+                      </Button>
+                      <Button
+                        onClick={sendForm}
+                        style={{
+                          backgroundColor: "#1BB61D",
+                          borderRadius: "5px",
+                          color: "white",
+                          height: "60px",
                           width: "130px",
                           fontFamily: "Prompt",
                           fontSize: "25px",
@@ -417,17 +457,20 @@ export default function Home() {
                     </Row>
                   </Form>
                   <Modal
-                    visible={isModalVisible}
+                    visible={qrcodeModalVisible}
                     onOk={handleOk}
                     onCancel={handleCancel}
                     centered
                   >
-                    <Paragraph
-                      style={{ fontSize: 22 }}
-                      copyable={{ tooltips: false }}
-                    >
-                      https://payment-k6re3l4ruq-as.a.run.app/{paymentLink}
-                    </Paragraph>
+
+                  </Modal>
+                  <Modal
+                    visible={paymentModalVisible}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                    centered
+                  >
+
                   </Modal>
                 </Col>
               </TabPane>
