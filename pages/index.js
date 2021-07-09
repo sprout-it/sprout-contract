@@ -11,6 +11,7 @@ import {
   Checkbox,
   Tabs,
   Steps,
+  Card
 } from "antd";
 import axios from "axios";
 const MEMBER_ENDPOINT = process.env.NEXT_PUBLIC_MEMBER_ENDPOINT;
@@ -48,7 +49,7 @@ export default function Home() {
         setCurrent(2);
         const quotation = item.contractData.quotation
         const qrcode = await axios.post(`${MEMBER_ENDPOINT}/payment`, { price: totalPrice, quotation: quotation });
-        console.log(qrcode)
+        console.log(qrcode.data)
         break;
       case "done":
         setCurrent(3);
@@ -78,6 +79,7 @@ export default function Home() {
           case "accepted":
             setCurrent(2);
             const qrcode = await axios.post(`${MEMBER_ENDPOINT}/payment`, { price: totalPrice, quotation: quotation });
+            console.log(qrcode.data)
             setQrcodeData(qrcode.data)
             break;
           case "done":
@@ -100,7 +102,6 @@ export default function Home() {
         const price = response.data.price
         const quotation = response.data.quotation
         const qrcode = await axios.post(`${MEMBER_ENDPOINT}/payment`, { price, quotation });
-        console.log(qrcode)
         // setPaymentLink(response.data);
 
         setQrcodeModalVisible(true)
@@ -200,6 +201,17 @@ export default function Home() {
     form.resetFields();
   };
 
+  // const checkWasPay = async (quotation) => {
+  //   try {
+  //     const wasPay = await axios.post(`${MEMBER_ENDPOINT}/wasPay`, { quotation })
+  //     if (wasPay.data.wasPay) {
+  //       console.log('was pay')
+  //     }
+  //   } catch (e) {
+  //     console.error(e)
+  //   }
+  // }
+
   useEffect(() => {
     getOrder();
   }, []);
@@ -285,7 +297,7 @@ export default function Home() {
         </Row>
         <Row
           justify="start"
-          style={{ margin: "20px", height: "100%", width: "100%" }}
+          style={{ margin: "20px", width: "100%" }}
         >
           {contract && contract.contractData.status === "offering" ? (
             <Tabs defaultActiveKey="1" style={{ width: "100%" }}>
@@ -335,7 +347,7 @@ export default function Home() {
                           {contract
                             ? contract.contractData.cartItems.map(
                               (item, key) => (
-                                <>
+                                <div key={key}>
                                   <tr>
                                     <th key={key}>Package: {item.name}</th>
                                   </tr>
@@ -344,7 +356,7 @@ export default function Home() {
                                       <td key={key}>{item}</td>
                                     </tr>
                                   ))}
-                                </>
+                                </div>
                               )
                             )
                             : ""}
@@ -503,10 +515,43 @@ export default function Home() {
               </TabPane>
             </Tabs>
           ) : contract && contract.contractData.status === "accepted" ? (
-            <Row>
-              <Col span={24}>นาย A</Col>
-              {qrCodeData && <Col span={24}><img width='200' height='200' src={`data:image/jpeg;base64,${qrCodeData.data.qrImage}`} alt="qr code" /></Col>}
-              <Col span={24}>จำนวนเงิน 12000 บ.</Col>
+            <Row justify='center' style={{ width: '100%' }}>
+              <Col span={24}>
+                <Typography.Title>ชำระเงินด้วย Qrcode</Typography.Title>
+              </Col>
+              <Col span={24}>
+                <Card>
+                  <Row align='middle'>
+                    <Col span={12} style={{ height: '100%' }}>
+                      <Row justify='center'>
+                        <Col span={24}>
+                          <Row justify='start'>
+                            <Form.Item label='ชื่อ' labelCol={{ span: 24 }}>
+                              <Card style={{ textAlign: 'center' }}>
+                                {contract.contractData.customer_name}
+                              </Card>
+                            </Form.Item>
+                          </Row>
+                        </Col>
+                        <Col span={24}>
+                          <Row justify='start'>
+                            <Form.Item label='ยอดรวม' labelCol={{ span: 24 }}>
+                              <Card style={{ textAlign: 'center' }}>
+                                {totalPrice}
+                              </Card>
+                            </Form.Item>
+                          </Row>
+                        </Col>
+                      </Row>
+                    </Col>
+                    <Col span={12}>
+                      <Row justify='center'>
+                        {qrCodeData && <img width='200' height='200' src={`data:image/jpeg;base64,${qrCodeData.data.qrImage}`} alt="qr code" />}
+                      </Row>
+                    </Col>
+                  </Row>
+                </Card>
+              </Col>
             </Row>
           ) : contract && contract.contractData.status === "done" ? (
             "สำเร็จ"
