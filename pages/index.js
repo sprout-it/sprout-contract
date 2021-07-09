@@ -47,9 +47,6 @@ export default function Home() {
         break;
       case "accepted":
         setCurrent(2);
-        const quotation = item.contractData.quotation
-        const qrcode = await axios.post(`${MEMBER_ENDPOINT}/payment`, { price: totalPrice, quotation: quotation });
-        console.log(qrcode.data)
         break;
       case "done":
         setCurrent(3);
@@ -71,16 +68,12 @@ export default function Home() {
           number += cart.ppu;
         });
         setTotalPrice(number);
-        const quotation = response.data[0].contractData.quotation
         switch (response.data[0].contractData.status) {
           case "offering":
             setCurrent(1);
             break;
           case "accepted":
             setCurrent(2);
-            const qrcode = await axios.post(`${MEMBER_ENDPOINT}/payment`, { price: totalPrice, quotation: quotation });
-            console.log(qrcode.data)
-            setQrcodeData(qrcode.data)
             break;
           case "done":
             setCurrent(3);
@@ -101,10 +94,12 @@ export default function Home() {
         const name = response.data.name
         const price = response.data.price
         const quotation = response.data.quotation
-        const qrcode = await axios.post(`${MEMBER_ENDPOINT}/payment`, { price, quotation });
+        const qrcode = await axios.post(`${MEMBER_ENDPOINT}/payment`, { price, quotation,docId:contract.docId });
         // setPaymentLink(response.data);
-
-        setQrcodeModalVisible(true)
+        if (qrcode.status===200) {
+          getOrder();
+        }
+        // setQrcodeModalVisible(true)
 
         // setIsModalVisible(true);
       }
@@ -546,7 +541,7 @@ export default function Home() {
                     </Col>
                     <Col span={12}>
                       <Row justify='center'>
-                        {qrCodeData && <img width='200' height='200' src={`data:image/jpeg;base64,${qrCodeData.data.qrImage}`} alt="qr code" />}
+                        {contract &&contract.contractData.qrImage ?<img width='200' height='200' src={`data:image/jpeg;base64,${contract.contractData.qrImage}`} alt="qr code" />:""}
                       </Row>
                     </Col>
                   </Row>
