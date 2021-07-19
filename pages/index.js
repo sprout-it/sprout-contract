@@ -541,7 +541,7 @@ export default function Home() {
                     </Col>
                     <Col span={12}>
                       <Row justify='center'>
-                        {contract &&contract.contractData.qrImage ?<img width='200' height='200' src={`data:image/jpeg;base64,${contract.contractData.qrImage}`} alt="qr code" />:""}
+                        {contract &&contract.contractData.qrImage ? <img width='200' height='200' src={`data:image/jpeg;base64,${contract.contractData.qrImage}`} alt="qr code" />:""}
                       </Row>
                     </Col>
                   </Row>

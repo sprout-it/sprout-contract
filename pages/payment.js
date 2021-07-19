@@ -4,25 +4,9 @@ import axios from 'axios'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
-import { w3cwebsocket as W3CWebSocket } from "websocket";
 const ENDPOINT = process.env.NEXT_PUBLIC_ENDPOINT
-const client = new W3CWebSocket(`ws://127.0.0.1:3000/wait`)
 
-const Index = ({
-  name,
-  callbackUrl,
-  price,
-  // token,
-  expired,
-}) => {
-
-  const [struct, setStruct] = useState({
-    name,
-    callbackUrl,
-    price,
-    // token,
-    expired,
-  })
+const Index = () => {
 
   const [qrUrl, setQrImg] = useState('')
 
@@ -33,16 +17,6 @@ const Index = ({
 
   useEffect(() => {
     genQr()
-    client.onopen = () => {
-      console.log('WebSocket Client Connected');
-      client.send('test')
-    };
-    client.onmessage = (message) => {
-      console.log(message)
-      if (message.data == 'confirm') {
-        window.location.assign(callbackUrl)
-      }
-    };
   }, [])
 
   // if (qrUrl)
@@ -77,20 +51,6 @@ const Index = ({
       </Card>
     </Row>
   </Layout>
-}
-
-export async function getServerSideProps(ctx) {
-  const { name, price, callbackUrl, expired } = ctx.query;
-
-  return {
-    props: {
-      name,
-      callbackUrl,
-      price,
-      expired
-      // token
-    }
-  }
 }
 
 export default Index
