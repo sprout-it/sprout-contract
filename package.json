@@ -19,6 +19,8 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-to-print": "^2.12.6",
+    "styled-component": "^2.8.0",
+    "styled-components": "^5.3.0",
     "swagger-ui-react": "^3.51.1",
     "websocket": "^1.0.34"
   },

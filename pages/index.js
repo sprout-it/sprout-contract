@@ -21,9 +21,6 @@ const MEMBER_ENDPOINT = process.env.NEXT_PUBLIC_MEMBER_ENDPOINT;
 const { Sider, Content, Header } = Layout
 const { TabPane } = Tabs;
 const { Step } = Steps;
-// const ColPrint = (Col)`
-
-// `
 
 export default function Home() {
   const { Paragraph } = Typography;
@@ -201,23 +198,22 @@ export default function Home() {
   };
 
   const handlePrint = useReactToPrint({
-    //   pageStyle: `
-    //   @page {
-    //     size: 80mm 50mm;
-    //   }
-
-    //   @media all {
-    //     .pagebreak {
-    //       display: none;
-    //     }
-    //   }
-
-    //   @media print {
-    //     .pagebreak {
-    //       page-break-before: always;
-    //     }
-    //   }
-    // `,
+    pageStyle: `
+      @page {
+          size: 210mm 297mm;
+          padding: 20mm;
+        }
+      @media all {
+          .pagebreak {
+            display: none;
+          }
+        }
+      @media print {
+          .pagebreak {
+            page-break-before: always;
+          }
+        }
+      `,
     content: () => printRef.current,
   });
 
@@ -287,14 +283,13 @@ export default function Home() {
             <Step title="Done" />
           </Steps>
         </Row>
-        <button onClick={handlePrint}>Print this out!</button>
         <Row
           justify="start"
           style={{ margin: "20px", width: "100%" }}
         >
           {contract && contract.contractData.status === "offering" ? (
-            <Tabs defaultActiveKey="1" style={{ width: "100%" }}>
-              <TabPane tab={<Typography.Title level={2}>Contract</Typography.Title>} key="1">
+            <Tabs defaultActiveKey="1">
+              <TabPane tab={<Typography.Title level={4}>สัญญา</Typography.Title>} key="1">
 
                 <Col span={24} style={{ padding: 25 }}>
                   <Form form={form} name="contract">
@@ -314,40 +309,18 @@ export default function Home() {
                       </Form.Item>
                     </Row>
 
-                    <Col span={24} ref={printRef}>
+                    <Col span={24} ref={printRef} >
                       <Row justify='center'>
                         <Col span={24}>
                           {contract
                             ? contract.contractData.cartItems.map(
-                              (item1, key1) => <Row>
+                              (item1, key1) => <Row style={{ "page-break-inside": "avoid" }}>
 
                                 <Col span={12}>
 
                                   <Col span={24}>
                                     <img src="/images/sprout-logo.png" width={300} alt="sprout logo" />
                                   </Col>
-
-                                  <Col span={24}>
-                                    <Row justify="center">
-                                      <Typography.Text>
-                                        ชื่อลูกค้า:{" "}
-                                        {
-                                          contract && contract.contractData.customer_name
-                                        }
-                                      </Typography.Text>
-                                    </Row>
-                                  </Col>
-
-                                  <Row justify='center'>
-                                    <Col span={24}>
-                                      <Paragraph style={{ marginRight: 12 }}>
-                                        ชื่อ AE : {" "}
-                                      </Paragraph>
-                                      <Paragraph editable={{ onChange: handleAeLeader }}>
-                                        {contract ? contract.contractData.ae_id : ""}
-                                      </Paragraph>
-                                    </Col>
-                                  </Row>
 
                                 </Col>
 
@@ -364,16 +337,32 @@ export default function Home() {
                                 </Col>
 
                                 <Col span={24}>
+                                  <Row align='middle' justify='center' style={{ textAlign: 'center' }}>
+                                    <Col span={12}>
+                                      <Typography.Text>
+                                        ชื่อลูกค้า: {contract && contract.contractData.customer_name}
+                                      </Typography.Text>
+                                    </Col>
+
+                                    <Col span={12}>
+                                      <Paragraph editable={{ onChange: handleAeLeader }}>
+                                        ชื่อ AE : {contract ? contract.contractData.ae_id : ""}
+                                      </Paragraph>
+                                    </Col>
+                                  </Row>
+                                </Col>
+
+                                <Col span={24}>
 
                                   <table key={key1} style={{ width: '100%' }}>
 
-                                    <tr key={key1} style={{ border: '2px solid #1BB61D' }}>
+                                    <tr key={key1} style={{ border: '2px solid #000' }}>
                                       <th>Package: {item1.name}</th>
                                       <th>หน่วย</th>
                                       <th>ราคา</th>
                                     </tr>
 
-                                    <tr>
+                                    <tr style={{ border: '1px solid #000', textAlign: 'center' }}>
                                       <td>
                                         {
                                           item1.detailsEN.map((item2, key2) => (
@@ -381,16 +370,16 @@ export default function Home() {
                                           ))
                                         }
                                       </td>
-                                      <th>{item1.qty}</th>
-                                      <th>{item1.ppu}</th>
+                                      <td style={{ border: '1px solid #000', verticalAlign: 'top' }}>{item1.qty}</td>
+                                      <td style={{ border: '1px solid #000', verticalAlign: 'top' }}>{item1.ppu}</td>
                                     </tr>
 
                                     {
                                       key1 == contract.contractData.cartItems.length - 1 &&
                                       <tr>
-                                        <td>รวม</td>
-                                        <td>{contract.contractData.cartItems.length}</td>
-                                        <td>{totalPrice ? totalPrice : ""}</td>
+                                        <td style={{ border: '1px solid #000' }}>รวม</td>
+                                        <td style={{ border: '1px solid #000' }}>{contract.contractData.cartItems.length}</td>
+                                        <td style={{ border: '1px solid #000' }}>{totalPrice ? totalPrice : ""}</td>
                                       </tr>
                                     }
 
@@ -402,44 +391,45 @@ export default function Home() {
                         </Col>
                       </Row>
 
-                      <Row>
-                        <Typography.Text
-                          style={{ fontSize: 20, color: "#46D68C" }}
-                        >
-                          Responsible persons
-                        </Typography.Text>
-                      </Row>
-
-                      <Row>
-                        <Col>
-                          <Form.Item
-                            name="aeteam"
-                            label="เพิ่ม AE เข้าทีม"
-                          >
-                            <Input onChange={(e) => onChangeAeName(e)} />
-                          </Form.Item>
-                        </Col>
-                        <Col>
-                          <Form.Item
-                            label="commission"
-                          >
-                            <InputNumber
-                              defaultValue={0}
-                              min={0}
-                              max={100}
-                              formatter={(value) => `${value}%`}
-                              parser={(value) => value.replace("%", "")}
-                              onChange={(e) => onChangeAePercent(e)}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col>
-                          <Form.Item>
-                            <Button onClick={() => addAe()}>เพิ่ม</Button>
-                          </Form.Item>
-                        </Col>
-                      </Row>
                     </Col>
+
+                    <Row>
+                      <Typography.Text
+                        style={{ fontSize: 20, color: "#46D68C" }}
+                      >
+                        เพิ่ม AE เข้าทีม
+                      </Typography.Text>
+                    </Row>
+
+                    <Row>
+                      <Col>
+                        <Form.Item
+                          name="aeteam"
+                          label="เพิ่ม AE เข้าทีม"
+                        >
+                          <Input onChange={(e) => onChangeAeName(e)} />
+                        </Form.Item>
+                      </Col>
+                      <Col>
+                        <Form.Item
+                          label="commission"
+                        >
+                          <InputNumber
+                            defaultValue={0}
+                            min={0}
+                            max={100}
+                            formatter={(value) => `${value}%`}
+                            parser={(value) => value.replace("%", "")}
+                            onChange={(e) => onChangeAePercent(e)}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col>
+                        <Form.Item>
+                          <Button onClick={() => addAe()}>เพิ่ม</Button>
+                        </Form.Item>
+                      </Col>
+                    </Row>
 
                     <Row>
                       <Col>
@@ -464,19 +454,19 @@ export default function Home() {
                         I agree with this contract details{" "}
                       </Checkbox>
                     </Row>
-                    <Row justify="center" style={{ paddingBottom: "52px" }}>
+                    <Row justify="center">
                       <Button
-                        onClick={sendForm}
+                        onClick={handlePrint}
+                        // onClick={sendForm}
                         style={{
                           backgroundColor: "#1BB61D",
                           borderRadius: "5px",
                           color: "white",
-                          height: "60px",
                           fontFamily: "Prompt",
-                          fontSize: "25px",
+                          fontSize: "18px",
                         }}
                       >
-                        สรุปและออกใบเสนอราคา
+                        สรุปและพิมพ์ใบเสนอราคา
                       </Button>
                     </Row>
                   </Form>
@@ -498,7 +488,7 @@ export default function Home() {
                   </Modal>
                 </Col>
               </TabPane>
-              <TabPane tab={<Typography.Title level={2}>Add More Requirement</Typography.Title>} key="2">
+              <TabPane tab={<Typography.Title level={4}>เพิ่มความต้องการอื่น ๆ</Typography.Title>} key="2">
                 <Col span={20}>
                   <Form form={form} name="contract">
                     <Row justify="start">
